@@ -1,22 +1,27 @@
-import { useEffect, useContext } from "react";
-import GithubContext from "../context/github/GithubContext";
-import { useParams } from "react-router-dom";
 import { FaCodepen, FaStore, FaUserFriends, FaUsers } from "react-icons/fa";
+import { useEffect, useContext } from "react";
+import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Spinner from "../components/layout/Spinner";
 import RepoList from "../components/layout/repos/RepoList";
+import GithubContext from "../context/github/GithubContext";
+import { getUserAndRepos } from "../context/github/GithubActions";
 
-const User = () => {
-  const { getUser, user, loading, repos } = useContext(GithubContext);
+function User() {
+  const { user, loading, repos, dispatch } = useContext(GithubContext);
 
   const params = useParams();
 
   useEffect(() => {
-    getUser(params.login);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    dispatch({ type: "SET_LOADING" });
+    const getUserData = async () => {
+      const userData = await getUserAndRepos(params.login);
+      dispatch({ type: "GET_USER_AND_REPOS", payload: userData });
+    };
 
-  //   Destructure
+    getUserData();
+  }, [dispatch, params.login]);
+
   const {
     name,
     type,
@@ -42,7 +47,7 @@ const User = () => {
     <>
       <div className="w-full mx-auto lg:w-10/12">
         <div className="mb-4">
-          <Link to="/" className="btn btn-primary">
+          <Link to="/" className="btn btn-ghost">
             Back To Search
           </Link>
         </div>
@@ -53,7 +58,6 @@ const User = () => {
               <figure>
                 <img src={avatar_url} alt="" />
               </figure>
-
               <div className="card-body justify-end">
                 <h2 className="card-title mb-0">{name}</h2>
                 <p>{login}</p>
@@ -74,9 +78,9 @@ const User = () => {
               <div className="mt-4 card-actions">
                 <a
                   href={html_url}
-                  className="btn btn-outline"
                   target="_blank"
                   rel="noreferrer"
+                  className="btn btn-outline"
                 >
                   Visit Github Profile
                 </a>
@@ -104,7 +108,6 @@ const User = () => {
                   </div>
                 </div>
               )}
-
               {twitter_username && (
                 <div className="stat">
                   <div className="stat-title text-md">Twitter</div>
@@ -164,9 +167,11 @@ const User = () => {
             </div>
           </div>
         </div>
+
+        <RepoList repos={repos} />
       </div>
     </>
   );
-};
+}
 
 export default User;

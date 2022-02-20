@@ -1,9 +1,9 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import Spinner from "../Spinner";
 import UserItem from "./UserItem";
 import GithubContext from "../../../context/github/GithubContext";
 
-const UserResults = ({ user }) => {
+function UserResults() {
   const { users, loading } = useContext(GithubContext);
 
   if (!loading) {
@@ -17,6 +17,6 @@ const UserResults = ({ user }) => {
   } else {
     return <Spinner />;
   }
-};
+}
 
 export default UserResults;
